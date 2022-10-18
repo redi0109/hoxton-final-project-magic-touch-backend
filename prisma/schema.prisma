@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int             @id @default(autoincrement())
+  name          String?
+  email         String          @unique
+  password      String
+  balance       Int             @default(150)
+  cart          CartItem[]
+  boughtProduct BoughtProduct[]
+}
+
+model Product {
+  id          Int        @id @default(autoincrement())
+  productName String
+  description String
+  price       Int
+  image       String
+  inStock     Int
+  categories  Category[]
+  brandId     Int
+  brand       Brand      @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  cartItem      CartItem[]
+  boughtProduct BoughtProduct[]
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    Int
+  productId Int
+  quantity  Int   @default(1)
+}
+
+model BoughtProduct {
+  id        Int     @id @default(autoincrement())
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    Int
+  productId Int
+}
+
+model Brand {
+  id        Int       @id @default(autoincrement())
+  name      String
+  product   Product[]
+  productId Int?
+}
