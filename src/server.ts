@@ -347,22 +347,17 @@ app.post("/buy", async (req, res) => {
 });
 
 app.post("/sign-up", async (req, res) => {
-  const data = {
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.email,
-  };
   try {
     const errors: string[] = [];
 
-    if (typeof data.name !== "string") {
+    if (typeof req.body.name !== "string") {
       errors.push("Name missing or not a string");
     }
-    if (typeof data.email !== "string") {
+    if (typeof req.body.email !== "string") {
       errors.push("Email missing or not a string");
     }
 
-    if (typeof data.password !== "string") {
+    if (typeof req.body.password !== "string") {
       errors.push("Password missing or not a string");
     }
 
@@ -371,7 +366,7 @@ app.post("/sign-up", async (req, res) => {
       return;
     }
     const existingUser = await prisma.user.findUnique({
-      where: { email: data.email },
+      where: { email: req.body.email },
     });
     if (existingUser) {
       res.status(400).send({ errors: ["Email already exists."] });
@@ -379,9 +374,9 @@ app.post("/sign-up", async (req, res) => {
     }
     const user = await prisma.user.create({
       data: {
-        name: data.name,
-        email: data.email,
-        password: hash(data.password),
+        name: req.body.name,
+        email: req.body.email,
+        password: hash(req.body.password),
       },
       include: {
         boughtProduct: { include: { product: { include: { brand: true } } } },
@@ -398,14 +393,13 @@ app.post("/sign-up", async (req, res) => {
 
 app.post("/sign-in", async (req, res) => {
   try {
-    const { email, password } = req.body;
     const errors: string[] = [];
 
-    if (typeof email !== "string") {
+    if (typeof req.body.email !== "string") {
       errors.push("Email missing or not a string");
     }
 
-    if (typeof password !== "string") {
+    if (typeof req.body.password !== "string") {
       errors.push("Password missing or not a string");
     }
 
@@ -415,14 +409,14 @@ app.post("/sign-in", async (req, res) => {
     }
 
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: req.body.email },
       include: {
         boughtProduct: { include: { product: { include: { brand: true } } } },
         cart: { include: { product: { include: { brand: true } } } },
       },
     });
-    console.log({ user });
-    if (user && verify(password, user.password)) {
+    console.log(user);
+    if (user && verify(req.body.password, user.password)) {
       const token = generateToken(user.id);
       res.send({ user, token });
     } else {
