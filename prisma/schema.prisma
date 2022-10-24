@@ -21,15 +21,15 @@ model User {
 }
 
 model Product {
-  id          Int        @id @default(autoincrement())
-  productName String
-  description String
-  price       Int
-  image       String
-  inStock     Int
-  categories  Category[]
-  brandId     Int
-  brand       Brand      @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id            Int             @id @default(autoincrement())
+  productName   String
+  description   String
+  price         Int
+  image         String
+  inStock       Int
+  categories    Category[]
+  brandId       Int
+  brand         Brand           @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   cartItem      CartItem[]
   boughtProduct BoughtProduct[]
 }
@@ -46,7 +46,7 @@ model CartItem {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId    Int
   productId Int
-  quantity  Int   @default(1)
+  quantity  Int     @default(1)
 }
 
 model BoughtProduct {

@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 
-const port = 4000;
+const port = 5000;
 
 app.get("/", (req, res) => {
   res.send(`
@@ -28,8 +28,8 @@ app.get("/products", async (req, res) => {
     const products = await prisma.product.findMany({
       include: {
         categories: true,
-        // cart: { include: { product: { include: { brand: true } } } },
-        // boughtProduct: { include: { product: { include: { brand: true } } } },
+        cartItem: { include: { product: { include: { brand: true } } } },
+        boughtProduct: { include: { product: { include: { brand: true } } } },
         brand: true,
       },
     });
@@ -195,7 +195,7 @@ app.post("/cartItem", async (req, res) => {
     });
 
     if (!product) {
-      res.status(404).send({ errors: ["product not found"] });
+      res.status(404).send({ errors: ["Product not found"] });
       return;
     }
     if (Number(product.inStock) < Number(data.quantity)) {
@@ -253,7 +253,7 @@ app.get("/cartItems", async (req, res) => {
     }
     const user = await getCurrentUser(token);
     if (!user) {
-      res.status(404).send({ errors: ["Invalid tokwn"] });
+      res.status(404).send({ errors: ["Invalid token"] });
       return;
     }
     res.send(user.cart);
@@ -421,6 +421,7 @@ app.post("/sign-in", async (req, res) => {
         cart: { include: { product: { include: { brand: true } } } },
       },
     });
+    console.log({ user });
     if (user && verify(password, user.password)) {
       const token = generateToken(user.id);
       res.send({ user, token });
